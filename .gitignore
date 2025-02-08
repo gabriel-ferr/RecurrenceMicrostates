@@ -1,3 +1,7 @@
+##		MacOS
+.DS_Store
+
+##		CMake Files
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
