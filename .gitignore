@@ -1,5 +1,6 @@
 ##		MacOS
 .DS_Store
+.idea
 
 ##		CMake Files
 CMakeLists.txt.user
@@ -14,3 +15,5 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
+cmake-build-debug/
+cmake-build-debug/*
