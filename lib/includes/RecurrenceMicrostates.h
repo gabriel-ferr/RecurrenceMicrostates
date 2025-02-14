@@ -30,7 +30,7 @@ namespace RecurrenceMicrostates {
     inline bool standard_recurrence(const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &params) {
         if (params.empty()) throw std::invalid_argument("[ERROR] RecurrenceMicrostates - Recurrence: the standard recurrence needs to have one parameter: the threshold.");
         double distance = 0;
-        for (auto i = 0; i < x.size(); i++)
+        for (size_t i = 0; i < x.size(); i++)
             distance += std::pow(x[i] - y[i], 2);
         return params[0] - std::sqrt(distance) >= 0;
     }
@@ -52,7 +52,7 @@ namespace RecurrenceMicrostates {
         bool useDictionaries = false;
 
     public:
-        explicit Settings(const std::vector<unsigned short> &structure, const unsigned int threads = std::thread::hardware_concurrency(), const bool force_vector = false, const bool force_dictionaries = false, const int force_indexsize = 0) {
+        explicit Settings(const std::vector<unsigned short> &structure, const unsigned int threads = std::thread::hardware_concurrency(), const bool force_vector = false, const bool force_dictionaries = false, const size_t force_indexsize = 0) {
             //      Check the input before to do anything.
             if (structure.size() < 2)
                 throw std::invalid_argument("[ERROR] RecurrenceMicrostates - Settings: The microstate structure required at least two dimensions.");
@@ -78,7 +78,7 @@ namespace RecurrenceMicrostates {
                 else this->dictionaryIndex = (hypervolume / 8 + 1) * 8;
             }
             //      Compute the power vector.
-            for (auto i = 0; i < hypervolume; i++)
+            for (unsigned int i = 0; i < hypervolume; i++)
                 vect.push_back(static_cast<unsigned int>(pow(2, i)));
 
             //      ----------  DEV: I have not implemented support for dictionaries yet =/
@@ -105,7 +105,7 @@ namespace RecurrenceMicrostates {
 
         unsigned int get_index(const std::array<unsigned int, D> &indexes) const {
             auto index = indexes[0];
-            for (auto i = 1; i < D; i++)
+            for (unsigned int i = 1; i < D; i++)
                 index += indexes[i] * std::accumulate(dims.begin(), dims.begin() + i, 1, std::multiplies());
             return index;
         }
@@ -138,7 +138,7 @@ namespace RecurrenceMicrostates {
 
             //      Make the result vector.
             std::vector<type> result;
-            for (auto i = 0; i < dims[0]; i++) {
+            for (unsigned int i = 0; i < dims[0]; i++) {
                 result.push_back(content[get_index(new_indexes)]);
                 ++new_indexes[0];
             }
@@ -190,7 +190,7 @@ namespace RecurrenceMicrostates {
                 const std::vector index_x(sample.begin(), sample.begin() + settings.Size() / 2);
                 const std::vector index_y(sample.begin() + settings.Size() / 2, sample.end());
 
-                for (auto m = 0; m < settings.Hypervolume(); m++) {
+                for (unsigned int m = 0; m < settings.Hypervolume(); m++) {
                     //      Recursive indexes.
                     const std::vector recursive_x(indexes.begin(), indexes.begin() + settings.Size() / 2);
                     const std::vector recursive_y(indexes.begin() + settings.Size() / 2, indexes.end());
@@ -202,7 +202,7 @@ namespace RecurrenceMicrostates {
                     add += settings.Power(m) * function(x, y, params);
                     //      Increment the recursive index.
                     indexes[0]++;
-                    for (auto k = 0; k < settings.Size() - 1; k++) {
+                    for (unsigned int k = 0; k < settings.Size() - 1; k++) {
                         if (indexes[k] > settings.Structure(k) - 1) {
                             indexes[k] = 0;
                             indexes[k + 1]++;
@@ -227,7 +227,7 @@ namespace RecurrenceMicrostates {
             //      Create the async tasks...
             std::vector<std::future<std::tuple<std::vector<unsigned int>, unsigned long>>> tasks;
             tasks.reserve(settings.Threads());
-            for (auto i = 0; i < settings.Threads(); i++)
+            for (unsigned int i = 0; i < settings.Threads(); i++)
                 tasks.push_back(std::async(std::launch::async, task_compute_using_vector, samples_idx[i], settings, data_x, data_y, params, function));
 
             std::vector<std::tuple<std::vector<unsigned int>, unsigned long>> results;
@@ -242,7 +242,7 @@ namespace RecurrenceMicrostates {
             this->vect_probs_result.resize(settings.Possibilities());
             for (auto &r : results) {
                 auto probs = std::get<0>(r);
-                for (auto i = 0; i < vect_probs_result.size(); i++)
+                for (size_t i = 0; i < vect_probs_result.size(); i++)
                     this->vect_probs_result[i] += probs[i] / static_cast<double>(counter);
             }
         }
@@ -282,7 +282,7 @@ namespace RecurrenceMicrostates {
                 std::uniform_int_distribution<unsigned int> dist_x(0, max_x);
                 std::uniform_int_distribution<unsigned int> dist_y(0, max_y);
 
-                for (auto i = 0; i < number_of_samples; i++) {
+                for (unsigned int i = 0; i < number_of_samples; i++) {
                     samples[i][dim] = dist_x(gen);
                     samples[i][dims + dim] = dist_y(gen);
                 }
@@ -294,14 +294,14 @@ namespace RecurrenceMicrostates {
             samples_idx.resize(settings.Threads());
 
             unsigned int start_idx = 0;
-            for (auto i = 0; i < settings.Threads(); i++) {
+            for (unsigned int i = 0; i < settings.Threads(); i++) {
                 const unsigned int numb = int_numb + (rest_numb > 0 ? 1 : 0);
 
                 samples_idx[i].resize(numb);
                 std::vector<int> samples_idx_tmp(numb);
                 std::iota(samples_idx_tmp.begin(), samples_idx_tmp.end(), start_idx);
 
-                for (auto j = 0; j < numb; j++) samples_idx[i][j] = samples[samples_idx_tmp[j]];
+                for (unsigned int j = 0; j < numb; j++) samples_idx[i][j] = samples[samples_idx_tmp[j]];
 
                 start_idx += numb;
                 if (rest_numb > 0) --rest_numb;
@@ -315,5 +315,5 @@ namespace RecurrenceMicrostates {
     };
     //          -------------------------  END::PROBABILITIES -------------------------
 }
-#endif RECURRENCE_MICROSTATES_H
+#endif //RECURRENCE_MICROSTATES_H
 //          -------------------------      LIB END        -------------------------
